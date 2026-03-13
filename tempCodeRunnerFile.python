@@ -1,0 +1,21 @@
+import networkx as nx
+
+# Creamos un grafo donde los nodos son tus 10 Hubs
+G = nx.Graph()
+
+for i, hub in enumerate(hubs):
+    G.add_node(i, pos=(hub[1], hub[0])) # lon, lat
+
+# Conectamos nodos que están a menos de una distancia umbral (ej. 3km)
+# Esto simula la capacidad de un conductor de saltar de un hub a otro
+from scipy.spatial.distance import cdist
+dist_matrix = cdist(hubs, hubs, metric='euclidean')
+
+for i in range(len(hubs)):
+    for j in range(i + 1, len(hubs)):
+        if dist_matrix[i, j] < 0.05: # Umbral aproximado en grados
+            G.add_edge(i, j, weight=dist_matrix[i, j])
+
+# Dibujar el esqueleto de la red de expansión
+pos = nx.get_node_attributes(G, 'pos')
+nx.draw(G, pos, with_labels=True, node_color='red', edge_color='gray')
